@@ -1,0 +1,374 @@
+/* ========== GLOBAL ========== */
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #94b3fd, #d7e9f7);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ========== CONTAINER BOX ========== */
+.container {
+  width: 550px;
+  background: #ffffffcc;
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 30px;
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.12);
+  animation: fadeIn 0.5s ease-in-out;
+  margin-top: 50px;
+  transition: 0.3s;
+}
+
+/* Entry Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #222;
+  font-weight: 600;
+}
+
+/* ========== ROLE BUTTONS ========== */
+.role-buttons {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Single Role Card Button */
+.role-button {
+  flex: 1;
+  min-width: 220px;
+  height: 120px;
+  background: #fff;
+  color: #222;
+  border: 2px solid #00b894;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.25s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  animation: cardPop 0.4s ease-in-out;
+}
+
+/* Hover Animation */
+.role-button:hover {
+  transform: translateY(-6px) scale(1.04);
+  background: #00b894;
+  color: white;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Pop animation for cards */
+@keyframes cardPop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Role Icons */
+.icon {
+  width: 45px;
+  height: 45px;
+}
+
+/* ========== FORM FIELDS ========== */
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  font-weight: 500;
+  color: #444;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 2px solid #c0c6ff;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+  background: #f6f6ff;
+  margin-top: 8px;
+}
+
+/* Focus Glow */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 8px rgba(108, 99, 255, 0.5);
+}
+
+/* ========== TEXTAREA ========== */
+textarea {
+  height: 110px;
+  resize: vertical;
+}
+
+/* ========== BUTTONS ========== */
+button {
+  width: 100%;
+  background: #6c63ff;
+  border: none;
+  color: white;
+  font-size: 17px;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: 0.25s;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover */
+button:hover {
+  background: #4b43ce;
+  transform: scale(1.03);
+}
+
+/* Click ripple effect */
+button:active::after {
+  content: "";
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 0.4s ease-out;
+  left: var(--x);
+  top: var(--y);
+}
+
+@keyframes ripple {
+  from {
+    opacity: 0.8;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* ========== MOBILE RESPONSIVE ========== */
+@media (max-width: 430px) {
+  .container {
+    width: 90%;
+  }
+
+  .role-button {
+    min-width: 100%;
+  }
+}
+
+.app-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2a2a2a;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: titlePop 0.4s ease;
+}
+
+/* title animation */
+@keyframes titlePop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-title {
+  border-bottom: 2px solid #6c63ff;
+  padding-bottom: 6px;
+}
+
+.app-title {
+  text-align: center;
+  font-size: 35px;
+  font-weight: 700;
+  color: #05032a;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #6c63ff;
+  padding-bottom: 6px;
+  animation: titlePop 0.4s ease;
+}
+
+@keyframes titlePop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Inner form panel */
+.form-box {
+  background: rgba(255, 255, 255, 0.75);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(6px);
+  transition: 0.3s;
+  margin-bottom: 20px;
+}
+
+/* Slight shadow lift on hover */
+.form-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+textarea {
+  height: 110px;
+  resize: vertical;
+  border-radius: 10px;
+}
+
+/* === Blur background when popup appears === */
+.blur {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* === Popup Overlay === */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+}
+
+/* === Popup Box === */
+.popup-box {
+  background: #ffffff;
+  width: 350px;
+  padding: 25px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 5px 35px rgba(0, 0, 0, 0.2);
+  animation: popIn 0.4s ease;
+}
+
+.popup-box h3 {
+  margin: 10px 0;
+  color: #333;
+}
+
+.popup-box p {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.popup-emoji {
+  font-size: 38px;
+}
+
+/* === Close Button === */
+.close-btn {
+  background: #6c63ff;
+  width: 100%;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  background: #5149d8;
+  transform: scale(1.03);
+}
+
+/* === Pop In Animation === */
+@keyframes popIn {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.blur {
+  filter: blur(5px);
+  pointer-events: none;
+}
