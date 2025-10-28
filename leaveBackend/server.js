@@ -1,14 +1,13 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+const axios = require("axios");
 require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// HOD/department mapping
+// Department → HOD email mapping
 const hodEmails = {
     CSE: "sayalarevathi@gmail.com",
     AIML: "sayalarevathi50@gmail.com",
@@ -21,49 +20,60 @@ const hodEmails = {
     Mechanical: "pillapuli@gmail.com",
 };
 
+// Root test route
 app.get("/", (req, res) => {
     res.json({ msg: "✅ Leave Backend Running Successfully!" });
 });
 
+// Leave submit route
 app.post("/sendLeave", async (req, res) => {
     const { userType, name, dept, days, date, reason } = req.body;
+
     if (!name || !dept || !days || !date || !reason) {
-        return res.status(400).json({ msg: "All fields required" });
+        return res.status(400).json({ msg: "⚠️ All fields must be entered" });
     }
 
-    // determine receiver
     let receiverEmail;
     if (userType === "NonTeaching" || userType === "HOD") {
-        receiverEmail = "sayalarevathi@gmail.com"; // AO
+        receiverEmail = "sayalarevathi@gmail.com";
     } else {
         receiverEmail = hodEmails[dept] || "sayalarevathi@gmail.com";
     }
 
     try {
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
-            port: Number(process.env.SMTP_PORT || 587),
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+        // ✅ Send email using Brevo API
+        await axios.post(
+            "https://api.brevo.com/v3/smtp/email",
+            {
+                sender: { name: "RCEE Leave System", email: "noreply@rcee.ac.in" },
+                to: [{ email: receiverEmail }],
+                subject: `Leave Request - ${name}`,
+                htmlContent: `
+          <h3>Leave Request Details</h3>
+          <p><b>Name:</b> ${name}</p>
+          <p><b>Department:</b> ${dept}</p>
+          <p><b>User Type:</b> ${userType}</p>
+          <p><b>Days of Leave:</b> ${days}</p>
+          <p><b>Date:</b> ${date}</p>
+          <p><b>Reason:</b> ${reason}</p>
+        `,
             },
-        });
+            {
+                headers: {
+                    "accept": "application/json",
+                    "api-key": process.env.BREVO_API_KEY, // ✅ your key
+                    "content-type": "application/json",
+                },
+            }
+        );
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: receiverEmail,
-            subject: `Leave Request - ${name}`,
-            text: `Name: ${name}\nDepartment: ${dept}\nUserType: ${userType}\nDays: ${days}\nDate: ${date}\nReason: ${reason}`,
-        };
-
-        await transporter.sendMail(mailOptions);
-        return res.json({ msg: "Leave Report Sent!" });
-    } catch (err) {
-        console.error("Mail error:", err);
-        return res.status(500).json({ msg: "Email Failed", error: err.message });
+        res.json({ msg: "✅ Leave Report Sent Successfully!" });
+    } catch (error) {
+        console.error("Mail error:", error.response?.data || error.message);
+        res.status(500).json({ msg: "❌ Email failed to send", error: error.message });
     }
 });
 
+// ✅ Dynamic PORT for Render
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on ${PORT}`));
