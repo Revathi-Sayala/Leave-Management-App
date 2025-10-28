@@ -1,3 +1,4 @@
+// server.js
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
@@ -25,7 +26,7 @@ app.get("/", (req, res) => {
     res.json({ msg: "✅ Leave Backend Running Successfully!" });
 });
 
-// Leave submit route
+// Leave submission route
 app.post("/sendLeave", async (req, res) => {
     const { userType, name, dept, days, date, reason } = req.body;
 
@@ -35,21 +36,21 @@ app.post("/sendLeave", async (req, res) => {
 
     let receiverEmail;
     if (userType === "NonTeaching" || userType === "HOD") {
-        receiverEmail = "sayalarevathi@gmail.com";
+        receiverEmail = "aorcee@gmail.com";
     } else {
         receiverEmail = hodEmails[dept] || "sayalarevathi@gmail.com";
     }
 
     try {
-        // ✅ Send email using Brevo API
-        await axios.post(
+        // ✅ Send email using Brevo's HTTPS API
+        const response = await axios.post(
             "https://api.brevo.com/v3/smtp/email",
             {
                 sender: { name: "RCEE Leave System", email: "noreply@rcee.ac.in" },
                 to: [{ email: receiverEmail }],
                 subject: `Leave Request - ${name}`,
                 htmlContent: `
-          <h3>Leave Request Details</h3>
+          <h3>Leave Request Submitted</h3>
           <p><b>Name:</b> ${name}</p>
           <p><b>Department:</b> ${dept}</p>
           <p><b>User Type:</b> ${userType}</p>
@@ -60,20 +61,24 @@ app.post("/sendLeave", async (req, res) => {
             },
             {
                 headers: {
-                    "accept": "application/json",
-                    "api-key": process.env.BREVO_API_KEY, // ✅ your key
+                    accept: "application/json",
+                    "api-key": process.env.BREVO_API_KEY,
                     "content-type": "application/json",
                 },
             }
         );
 
+        console.log("✅ Brevo Response:", response.data);
         res.json({ msg: "✅ Leave Report Sent Successfully!" });
     } catch (error) {
-        console.error("Mail error:", error.response?.data || error.message);
-        res.status(500).json({ msg: "❌ Email failed to send", error: error.message });
+        console.error("❌ Brevo Error:", error.response?.data || error.message);
+        res.status(500).json({
+            msg: "❌ Email failed to send",
+            error: error.response?.data || error.message,
+        });
     }
 });
 
 // ✅ Dynamic PORT for Render
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`✅ Server running on ${PORT}`));
