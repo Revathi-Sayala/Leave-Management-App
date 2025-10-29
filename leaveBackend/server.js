@@ -46,7 +46,7 @@ app.post("/sendLeave", async (req, res) => {
     // ✅ Determine Receiver
     let receiverEmail;
     if (userType === "HOD" || userType === "NonTeaching") {
-        receiverEmail = "aorcee@gmail.com"; // AO Email
+        receiverEmail = "sayalarevathi50@gmail.com"; // AO Email
     } else {
         receiverEmail = hodEmails[dept] || "sayalarevathi50@gmail.com"; // fallback
     }
