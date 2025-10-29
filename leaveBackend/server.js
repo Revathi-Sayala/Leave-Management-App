@@ -1,97 +1,73 @@
-// server.js
-const express = require("express");
-const cors = require("cors");
-const nodemailer = require("nodemailer");
-require("dotenv").config();
+// ✅ Leave Management Backend - Brevo API Version
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import fetch from "node-fetch";
 
+dotenv.config();
 const app = express();
+
+// ✅ Middleware
 app.use(cors());
 app.use(express.json());
 
-// ============================
-// 🔹 Department → HOD Emails
-// ============================
-const hodEmails = {
-    CSE: "sayalarevathi@gmail.com",
-    AIML: "sayalarevathi50@gmail.com",
-    AIDS: "sayalarevathi50@gmail.com",
-    Cyber: "sayalasrinagakarthik@gmail.com",
-    IOT: "sayalasrinagakarthik@gmail.com",
-    EEE: "pillapuli90@gmail.com",
-    ECE: "pillapuli90@gmail.com",
-    CIVIL: "sayalarevathi50@gmail.com",
-    Mechanical: "pillapuli@gmail.com",
-};
+// ✅ Config
+const PORT = process.env.PORT || 10000;
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
 
-// ============================
-// ✅ Root Health Check Route
-// ============================
+// ✅ Root route for health check
 app.get("/", (req, res) => {
-    res.json({ msg: "✅ Leave Backend Running Successfully!" });
+    res.send("✅ Leave Management API is running...");
 });
 
-// ============================
-// ✉️ Leave Submission Route
-// ============================
+// ✅ Leave form route
 app.post("/sendLeave", async (req, res) => {
+    console.log("Incoming leave request:", req.body); // 🟢 Debug
+
+    const { userType, name, dept, days, date, reason } = req.body;
+
+    if (!name || !dept || !days || !date || !reason) {
+        return res.status(400).json({ msg: "❌ Missing fields" });
+    }
+
+    const emailBody = `
+    <h2>Leave Application</h2>
+    <p><strong>From:</strong> ${name}</p>
+    <p><strong>Department:</strong> ${dept}</p>
+    <p><strong>User Type:</strong> ${userType}</p>
+    <p><strong>Days:</strong> ${days}</p>
+    <p><strong>Date:</strong> ${date}</p>
+    <p><strong>Reason:</strong> ${reason}</p>
+  `;
+
     try {
-        const { userType, name, dept, days, date, reason } = req.body;
-
-        if (!name || !dept || !days || !date || !reason) {
-            return res.status(400).json({ msg: "⚠️ All fields are required" });
-        }
-
-        // Determine recipient email
-        let receiverEmail = "";
-        if (userType === "NonTeaching" || userType === "HOD") {
-            receiverEmail = "sayalarevathi@gmail.com"; // AO email
-        } else {
-            receiverEmail = hodEmails[dept] || "sayalarevathi@gmail.com";
-        }
-
-        // ============================
-        // 🔹 Setup Brevo SMTP Transport
-        // ============================
-        const transporter = nodemailer.createTransport({
-            host: "smtp-relay.brevo.com",
-            port: 587,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+        const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                accept: "application/json",
+                "api-key": BREVO_API_KEY,
+                "content-type": "application/json",
             },
+            body: JSON.stringify({
+                sender: { email: "sayalarevathi50@gmail.com", name: "RCEE Leave System" },
+                to: [{ email: "sayalarevathi@gmail.com" }],
+                subject: `Leave Request - ${name}`,
+                htmlContent: emailBody,
+            }),
         });
 
-        const mailOptions = {
-            from: `"RCEE Leave Portal" <${process.env.EMAIL_USER}>`,
-            to: receiverEmail,
-            subject: `Leave Request - ${name}`,
-            text: `
-Name: ${name}
-Department: ${dept}
-User Type: ${userType}
-Days of Leave: ${days}
-Date: ${date}
-Reason: ${reason}
-      `,
-        };
-
-        // Send mail
-        await transporter.sendMail(mailOptions);
-
-        console.log("✅ Mail sent successfully!");
-        res.json({ msg: "✅ Leave Report Sent Successfully!" });
-
-    } catch (error) {
-        console.error("❌ Mail sending failed:", error);
-        res.status(500).json({ msg: "❌ Email sending failed", error: error.message });
+        if (response.ok) {
+            console.log("✅ Email sent successfully");
+            res.json({ msg: "✅ Leave Report Sent Successfully!" });
+        } else {
+            const error = await response.json();
+            console.error("Brevo API Error:", error);
+            res.status(500).json({ msg: "❌ Failed to send email", error });
+        }
+    } catch (err) {
+        console.error("Request Error:", err);
+        res.status(500).json({ msg: "❌ Internal Server Error", error: err.message });
     }
 });
 
-// ============================
-// 🌐 Server Startup
-// ============================
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
